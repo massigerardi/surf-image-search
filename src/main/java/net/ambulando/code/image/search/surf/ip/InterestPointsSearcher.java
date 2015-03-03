@@ -59,23 +59,15 @@ public class InterestPointsSearcher implements ImageSearcher {
 	
 	public Collection<Candidate> search(File file, Collection<ImageInterestPoints> imagePointsList) {
 		Collection<Candidate> candidates = new TreeSet<Candidate>();
-		log.debug("searching..." + file.getName());
-		final long start = System.currentTimeMillis();
 		List<InterestPoint> points = resizeAndFindInterestPoints(file);
-		try {
-			for (ImageInterestPoints imagePoints : imagePointsList) {
-				final double distance = calculateDistance(points, imagePoints.getPoints());
-				if (distance>0.1d) {
-					log.debug("candidate: " + imagePoints.getImage().getName() + " result: " + distance);					
-					candidates.add(new Candidate(imagePoints.getImage(), distance, SURF));
-					if (distance>0.60d) {
-						break;
-					}
+		for (ImageInterestPoints imagePoints : imagePointsList) {
+			final double distance = calculateDistance(points, imagePoints.getPoints());
+			if (distance>0.1d) {
+				candidates.add(new Candidate(imagePoints.getImage(), distance, SURF));
+				if (distance>0.60d) {
+					break;
 				}
 			}
-		} finally {
-			long end = System.currentTimeMillis();
-			log.debug("search in "+imagePointsList.size()+" images took "+(end -  start)+" ms");
 		}
 		return candidates;
 	}
@@ -98,7 +90,6 @@ public class InterestPointsSearcher implements ImageSearcher {
 	}
 	
 	protected void init() {
-		log.debug("init "+this.toString());
 		List<File> files = imageHelper.getImages(new File(sources));
 		if (useCache) {
 			System.setProperty("net.sf.ehcache.enableShutdownHook","true");
@@ -116,7 +107,6 @@ public class InterestPointsSearcher implements ImageSearcher {
 				imagePoints.put(file.getAbsolutePath(), new ImageInterestPoints(file, points));
 			}
 		}
-		log.debug("init done "+this.toString());
 	}
 	
 	private void loadImageInterestPointsFromCache(File file) {
@@ -155,15 +145,8 @@ public class InterestPointsSearcher implements ImageSearcher {
 	}
 
 	private List<InterestPoint> findInterestPoints(File file) {
-		log.debug("findInterestPoints start ... "+file.getName());
-		long start = System.currentTimeMillis();
-		try {
-			ImagePlus image = opener.openImage(file.getAbsolutePath());
-			return finder.findInterestingPoints(image.getProcessor());
-		} finally {
-			long end = System.currentTimeMillis();
-			log.debug("findInterestPoints "+file.length()+" took "+(end -  start)+" ms");
-		}
+		ImagePlus image = opener.openImage(file.getAbsolutePath());
+		return finder.findInterestingPoints(image.getProcessor());
 	}
 
 	public static void setUseCache(boolean b) {
