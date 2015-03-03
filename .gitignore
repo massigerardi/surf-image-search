@@ -1,0 +1,148 @@
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases
+*.log
+*.log*
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Apache Maven
+target/
+
+# IntelliJ IDEA, Webstorm, AppCode
+.idea/
+out/
+*.iml
+*.iws
+
+# Eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+/src/main/resources/rebel.xml
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# Generic files to ignore
+*~
+*.lock
+*.DS_Store
+*.out
+*.swp
+
+# Sass Compiler Cache Files
+*.scssc
+
+# Vagrant
+.vagrant/
+
+# Atlassian connector
+atlassian-ide-plugin.xml
+/sonarqube-properties.properties
+sonarqube-project.properties
+
+# Node.js and NPM
+node_modules/
+
+# Bower
+bower_components/
+
+# Assemble
+_output/
+
+icons.html
+
+# the automatically created content of the content package.
+# we don't need to have grunt build artefacts in git
+ds2-web-components/src/main/content/etc/designs/digitals2/clientlib/media/icons/png/
+
+# personalized vagrant config file
+config.yml
+ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/main.css.map
+ds2-components/ds2-components-core/.checkstyle
+ds2-components/ds2-components-core/.fbIncludeFilterFile
+ds2-components/ds2-components-core/.pmd
+ds2-components/ds2-components-core/.pmdruleset.xml
+ds2-integrationtests/ds2-integrationtests-core/.checkstyle
+ds2-integrationtests/ds2-integrationtests-core/.fbIncludeFilterFile
+ds2-integrationtests/ds2-integrationtests-core/.pmd
+ds2-integrationtests/ds2-integrationtests-core/.pmdruleset.xml
+ds2-search/ds2-search-workflows-core/.checkstyle
+ds2-search/ds2-search-workflows-core/.fbIncludeFilterFile
+ds2-search/ds2-search-workflows-core/.pmd
+ds2-search/ds2-search-workflows-core/.pmdruleset.xml
+ds2-workflows/ds2-workflows-core/.checkstyle
+ds2-workflows/ds2-workflows-core/.fbIncludeFilterFile
+ds2-workflows/ds2-workflows-core/.pmd
+ds2-workflows/ds2-workflows-core/.pmdruleset.xml
+
+ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/media/fonts/icons-grunt-webfont
+
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/grunticon/preview.html
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/grunticon/png
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/grunticon/grunticon.loader.js
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/grunticon/icons.data.png.css
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/grunticon/icons.fallback.css
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/preview.html
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/png
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/grunticon.loader.js
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/icons.data.png.css
+ds2-web-components/src/main/content/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/icons.fallback.css
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/main.css.map
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/png
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/grunticon.loader.js
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/icons.data.png.css
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/icons.fallback.css
+/ds2-web-components/src/main/content/jcr_root/etc/clientlibs/digitals2/clientlib/css/sass/site/base/grunticon/preview.html
+/ds2-tracking/ds2-tracking-core/.checkstyle
+/ds2-tracking/ds2-tracking-core/.fbIncludeFilterFile
+/ds2-tracking/ds2-tracking-core/.pmd
+/ds2-tracking/ds2-tracking-core/.pmdruleset.xml
+
+sh.exe.stackdump
