@@ -10,29 +10,43 @@ import net.ambulando.code.image.search.surf.ip.InterestPointDrawer;
 
 public class Detector {
 
-	public static List<InterestPoint> fastHessian(IntegralImage img, Settings p) {
+	private final static int LAYERS = 4;
+	private final static int OCTAVES = 4;
+	private final static int[][] FILTER_SIZES = { { 9, 15, 21, 27 }, { 15, 27, 39, 51 }, { 27, 51, 75, 99 }, { 51, 99, 147, 195 } };
+	private final static int[] MAX_FILTER_SIZES = {27, 51, 99, 195};
+
+	private final static int STEP_INC_FACTOR = 2;
+	private static int INIT_STEP = 1;//faster with 2
+	
+	private final static float THRESHOLD = 0.0000001f; 
+	
+	public static void SetInitStep(int step) {
+		Detector.INIT_STEP = step;
+	}
+	
+	public static List<InterestPoint> fastHessian(IntegralImage img) {
 		
 		/** Determinant of hessian responses */
-		float[][][] det = new float[p.getLayers()][img.getWidth()][img.getHeight()];
+		float[][][] det = new float[LAYERS][img.getWidth()][img.getHeight()];
 		
 		/** Trace of the determinant of hessian responses.
 		 * The sign of trace (the laplacian sign) is used to indicate the type of blobs: 
 		 * negative means light blobs on dark background, positive -- vice versa. 
 		 * (Signs will be computed in constructor of interest point) */
-		float[][][] trace = new float[p.getLayers()][img.getWidth()][img.getHeight()];
+		float[][][] trace = new float[LAYERS][img.getWidth()][img.getHeight()];
 		
 		List<InterestPoint> res = new ArrayList<InterestPoint>(2000);
 	
-		for (int octave = 0, step = p.getInitStep(); octave < p.getOctaves(); octave++, step*=p.getStepIncFactor()) {
+		for (int octave = 0, step = INIT_STEP; octave < OCTAVES; octave++, step*=STEP_INC_FACTOR) {
 	
 			// Determine the border width (margin) for the largest filter in the octave
 			// (the largest filter in the octave must fit into image)
-			int margin = p.getMaxFilterSize(octave) / 2; 
+			int margin = MAX_FILTER_SIZES[octave] / 2; 
 			int xBound = img.getWidth() - margin;  // non-inclusive
 			int yBound = img.getHeight() - margin; // non-inclusive
 	
-			for (int layer = 0; layer < p.getLayers(); layer++) {
-				int w = p.getFilterSize(octave,layer); // filter width == filter size
+			for (int layer = 0; layer < LAYERS; layer++) {
+				int w = FILTER_SIZES[octave][layer]; // filter width == filter size
 				int L =  w / 3; // lobe size, e.g. 3 in 9x9 filter
 				int L2 = 2 * L - 1; // "another lobe" size, e.g. 5 in 9x9 filter (in Dxx and Dyy filters only) 
 				int wHalf = w / 2;  // filter's half-width
@@ -73,9 +87,9 @@ public class Detector {
 			margin += step; xBound -= step; yBound -= step;
 			
 			// Iterate over all layers except the first and the last
-			for(int layer = 1; layer < p.getLayers()-1; layer++) {
-				int filterSize = p.getFilterSize(octave, layer);
-				int filterSizeIncrement = filterSize - p.getFilterSize(octave, layer-1);
+			for(int layer = 1; layer < LAYERS-1; layer++) {
+				int filterSize = FILTER_SIZES[octave][layer];
+				int filterSizeIncrement = filterSize - FILTER_SIZES[octave][layer-1];
 				float v, xInterp, yInterp, scale;
 
 				// Statistics
@@ -84,7 +98,7 @@ public class Detector {
 					for(int x = margin; x < xBound; x += step) { // column
 
 						v = det[layer][x][y];
-						if (v < p.getThreshold()) {
+						if (v < THRESHOLD) {
 							continue;
 						}
 							

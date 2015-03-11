@@ -4,12 +4,14 @@
 package net.ambulando.code.image.search;
 
 import java.io.File;
-
-import com.google.common.collect.ComparisonChain;
+import java.text.MessageFormat;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
+import net.ambulando.code.image.search.surf.ip.InterestPoint;
+
+import com.google.common.collect.ComparisonChain;
 
 /**
  * @author massi
@@ -17,20 +19,30 @@ import lombok.ToString;
  */
 @Getter
 @AllArgsConstructor
-@ToString
 public class Candidate implements Comparable<Candidate> {
 
 	File image;
 	
-	Double score;
+	final Map<InterestPoint, InterestPoint> matchedPoint;
+
+	public int score() {
+		return matchedPoint.size();
+	}
+
 	
-	String type;
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Candidate other) {
-		return ComparisonChain.start().compare(other.getScore(), this.getScore()).result();
+		return ComparisonChain.start().compare(other.score(), this.score()).result();
+	}
+
+
+
+	@Override
+	public String toString() {
+		return MessageFormat.format("Candidate({0},{1})", this.image.getName(), this.matchedPoint.size());
 	}
 
 }

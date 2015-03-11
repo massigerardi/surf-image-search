@@ -5,18 +5,21 @@ import static java.lang.Math.round;
 import static java.lang.Math.sin;
 import ij.process.ImageProcessor;
 
+import java.awt.Color;
 import java.util.List;
 
-import net.ambulando.code.image.search.surf.Settings;
-
-
-// TODO: license info in all files?
 
 /** SURF library for ImageJ. Based on SURF paper (2008) and OpenSURF C++ implementation. 
  * See SURF_Test.java for example of usage.
  * @author Eugen Labun
  */
 public class InterestPointDrawer {
+	
+	private final static boolean DISPLAY_ORIENTATION_VECTORS = true;
+
+	private final static boolean DISPLAY_DESCRIPTOR_WINDOWS = false;
+
+	private final static int LINE_WIDTH = 1; // 1..5
 	
 	private InterestPointDrawer() {}
 	
@@ -28,16 +31,16 @@ public class InterestPointDrawer {
 	//TODO: cache also the last parameter set!
 
 	/** Draws interest points onto suplied <code>ImageProcessor</code>. */
-	public static void drawInterestPoints(ImageProcessor img, List<InterestPoint> ipts, Settings settings) {
+	public static void drawInterestPoints(ImageProcessor img, List<InterestPoint> ipts) {
 		// TODO: 3 loops: 1) rectangles only, 2) orientation vectors only, 3) interest points only
 		// ^^ to be shure all interest points are visible!
 
 		for(InterestPoint ipt : ipts) 
-			drawSingleInterestPoint(img, settings, ipt);
+			drawSingleInterestPoint(img, ipt);
 	}
 	
 	
-	public static void drawSingleInterestPoint(ImageProcessor img, Settings p, InterestPoint ipt) {
+	public static void drawSingleInterestPoint(ImageProcessor img, InterestPoint ipt) {
 		int x = round(ipt.x);
 		int y = round(ipt.y);
 		float w = ipt.scale * 10; // for descriptor window
@@ -53,9 +56,9 @@ public class InterestPointDrawer {
 		// Otherwise some points could be overdrawed by descriptor- or vector-lines. 
 		
 		// Draw descriptor window around the interest point
-		if (p.isDisplayDescriptorWindows()) {
-			img.setLineWidth(p.getLineWidth());
-			img.setColor(p.getDescriptorWindowColor());
+		if (DISPLAY_DESCRIPTOR_WINDOWS) {
+			img.setLineWidth(LINE_WIDTH);
+			img.setColor(Color.GREEN);
 
 			float x0 = w * ( si + co) + ipt.x;   float y0 = w * (-co + si) + ipt.y;
 			float x1 = w * ( si - co) + ipt.x;   float y1 = w * (-co - si) + ipt.y;
@@ -83,19 +86,19 @@ public class InterestPointDrawer {
 		
 		// Draw orientation vector
 //		if (ori != 0) {
-		if (p.isDisplayOrientationVectors()) {
-			img.setLineWidth(p.getLineWidth());
-			img.setColor(p.getOrientationVectorColor());
+		if (DISPLAY_ORIENTATION_VECTORS) {
+			img.setLineWidth(LINE_WIDTH);
+			img.setColor(Color.YELLOW);
 			img.drawLine(x, y, round(s*co + x), round(s*si + y));
 		}
 
 		
 		// Draw interest point
-		img.setLineWidth(p.getLineWidth()*4);
+		img.setLineWidth(LINE_WIDTH*4);
 		if (ipt.sign)
-			img.setColor(p.getDarkPointColor());
+			img.setColor(Color.BLUE);
 		else
-			img.setColor(p.getLightPointColor());
+			img.setColor(Color.RED);
 		img.drawDot(x, y);
 		
 	}

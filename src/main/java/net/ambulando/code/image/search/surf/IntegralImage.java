@@ -5,10 +5,11 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
-// TODO detach from IJ, move IJ-related code into IJFacade
+import lombok.Getter;
+
+@Getter
 public class IntegralImage {
 
-	/** Should be set via setData() method. */
 	private float[][] data;
 	
 	/** Sets internal array to the argument <code>a</code> and updates attributes width, height, maxX, maxY. */
@@ -29,65 +30,6 @@ public class IntegralImage {
 
 	public float get(int x, int y) {
 		return data[x][y];
-	}
-
-	// set() is not needed
-	// public void set(int x, int y, float val) {
-	// data[x][y] = val;
-	// }
-
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public int getMaxX() {
-		return maxX;
-	}
-
-	public int getMaxY() {
-		return maxY;
-	}
-
-	// TODO: constructors for byte[] and float[] input images?
-
-	/**
-	 * Creates the integral image of the source image. The order of coordinates
-	 * in the integral image is [x][y].
-	 * <p>
-	 * The <code>integral image</code> is an image where pixel values are sums
-	 * of pixel values above and to the left of the actual pixel (inclusive)
-	 * from the source image.
-	 */
-	public IntegralImage(ImageProcessor src) { // TODO: remove this constructor in favor of IntegralImage(ImageProcessor, boolean)!!!
-		// Get the source image as a new float[][] grayscale array
-		// using the defautl ImageJ algorithm.
-		// NB: in OpenSURF C# version following is used to convert from RGB to
-		// grayscale:
-		// luminance = (0.3 R + 0.59 G + 0.11 B) / 255.
-
-		// ImageJ:
-		// Weighting factors used by getPixelValue(), getHistogram() and
-		// convertToByte().
-		// Enable "Weighted RGB Conversion" in <i>Edit/Options/Conversions</i>
-		// to use 0.299, 0.587 and 0.114.
-		// private static double rWeight=1d/3d, gWeight=1d/3d, bWeight=1d/3d;
-		// TODO: Call ColorProcessor.setWeightingFactors() ?
-
-		// TODO: implement as int[][] or long[][]? Or as int[] or long[]?
-
-		// NB: OpenSURF does   cvConvertScale( gray8, gray32, 1.0 / 255.0, 0 );
-		// at converting to grayscale!
-
-
-		// Initialize the instance variables
-		setData(src.convertToByte(false).getFloatArray()); // [width][height]
-		// [x][y]
-
-		convertInternalBufferToIntegralImage();
 	}
 
 	/** Compute the integral image. */

@@ -14,8 +14,6 @@ import java.util.Collection;
 
 import javax.imageio.ImageIO;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,10 +22,10 @@ import org.apache.commons.lang.StringUtils;
  * @author massi
  *
  */
-@Slf4j
 public class ImageUtils {
 
 	private static Opener opener = new Opener();
+	
 	/**
 	 * a main method to resize single image or content of folders
 	 * it accept the following arguments
@@ -124,8 +122,10 @@ public class ImageUtils {
 		return newFile.getAbsolutePath();
 	}
 
-	private  ImageUtils() {
-	}
+	/**
+	 * hidden constructor.
+	 */
+	private  ImageUtils() {}
 	
 	/**
 	 * returns an image with the exact dimension provided
@@ -182,20 +182,22 @@ public class ImageUtils {
 	 * @param file the file path for the image to be resized
 	 * @return
 	 */
-	public static BufferedImage resize(int size, String file) {
-		ImagePlus image = opener.openImage(file);
+	public static ImagePlus resize(int size, ImagePlus image) {
 		RenderedImage renderedImage = image.getBufferedImage();
-		int width = size;
-		int height = size;
 		int w = renderedImage.getWidth();
 		int h = renderedImage.getHeight();
-		double ratio = (double)w/(double)h;
-		if (w > h) {
-			height = (int) (width * 1/ratio);
-		} else {
-			width = (int) (height * ratio);
+		if (w > size || h > size) {
+			int width = size;
+			int height = size;
+			double ratio = (double)w/(double)h;
+			if (w > h) {
+				height = (int) (width * 1/ratio);
+			} else {
+				width = (int) (height * ratio);
+			}
+			image = new ImagePlus(image.getTitle(), image.getProcessor().resize(width, height));
 		}
-		return image.getProcessor().resize(width, height).getBufferedImage();
+		return image;
 	}
 	
 	/**
@@ -205,17 +207,17 @@ public class ImageUtils {
 	 * the proportion are kept
 	 * the image will be saved in the destination file
 	 * if destination file is null, the original name with suffix -th will be used
-	 * @param width
-	 * @param height
+	 * @param size
 	 * @param src the file path for the image to be resized
 	 * @param dest the destination file
 	 * @return
 	 */
-	public static BufferedImage resizeAndSave(int size, String src, String dest) throws IOException {
+	public static ImagePlus resizeAndSave(int size, String src, String dest) throws IOException {
 		dest = createDest(src, dest);
-		BufferedImage image = resize(size, src);
-		ImageIO.write(image, "jpg", new File(dest));
+		ImagePlus image = resize(size, opener.openImage(src));
+		ImageIO.write(image.getBufferedImage(), "jpg", new File(dest));
 		return image;
 	}
+	
 	
 }

@@ -10,7 +10,6 @@ import java.util.List;
 import net.ambulando.code.image.search.surf.Descriptor;
 import net.ambulando.code.image.search.surf.Detector;
 import net.ambulando.code.image.search.surf.IntegralImage;
-import net.ambulando.code.image.search.surf.Settings;
 
 
 /**
@@ -24,13 +23,13 @@ public class InterestPointsFinder {
 		IntegralImage image = new IntegralImage(processor, true);
 		
 		// Detect interest points with Fast-Hessian
-		List<InterestPoint> ipts = Detector.fastHessian(image, Settings.getSettings());
+		List<InterestPoint> ipts = Detector.fastHessian(image);
 		
 		// Describe interest points with SURF-descriptor
 		for (InterestPoint ipt: ipts)
 			Descriptor.computeAndSetOrientation(ipt, image);
 		for (InterestPoint ipt: ipts)
-			Descriptor.computeAndSetDescriptor(ipt, image, Settings.getSettings());
+			Descriptor.computeAndSetDescriptor(ipt, image);
 
 		return ipts;
 

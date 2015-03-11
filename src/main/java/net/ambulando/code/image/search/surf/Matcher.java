@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.extern.slf4j.Slf4j;
+import net.ambulando.code.image.search.heuristic.Heuristic;
 import net.ambulando.code.image.search.surf.ip.InterestPoint;
 
-//TODO move IJ-related code into IJFacade
-
+@Slf4j
 public class Matcher {
 
 	public static class Point2D {
@@ -36,12 +37,12 @@ public class Matcher {
 		}
 	}
 
-	public static Map<InterestPoint, InterestPoint> findMathes(List<InterestPoint> ipts1, List<InterestPoint> ipts2, boolean doReverseComparisonToo) {
+	public static Map<InterestPoint, InterestPoint> findMatches(List<InterestPoint> ipts1, List<InterestPoint> ipts2, boolean doReverseComparisonToo, Heuristic heuristic) {
 
-		Map<InterestPoint, InterestPoint> matchedPoints = Matcher.findMathes(ipts1, ipts2);
+		Map<InterestPoint, InterestPoint> matchedPoints = Matcher.findMathes(ipts1, ipts2, heuristic);
 
 		if (doReverseComparisonToo) {
-			Map<InterestPoint, InterestPoint> matchedPointsReverse = Matcher.findMathes(ipts2, ipts1);
+			Map<InterestPoint, InterestPoint> matchedPointsReverse = Matcher.findMathes(ipts2, ipts1, heuristic);
 
 			// take only those points that matched in the reverse comparison too
 			Map<InterestPoint, InterestPoint> matchedPointsBoth = new HashMap<InterestPoint, InterestPoint>();
@@ -59,33 +60,26 @@ public class Matcher {
 	 * Finds matching points using the sign of laplacian and a linear nearest
 	 * neighbor search.
 	 */
-	public static Map<InterestPoint, InterestPoint> findMathes(List<InterestPoint> ipts1, List<InterestPoint> ipts2) {
+	public static Map<InterestPoint, InterestPoint> findMathes(List<InterestPoint> ipts1, List<InterestPoint> ipts2, Heuristic heuristic) {
 		Map<InterestPoint, InterestPoint> res = new HashMap<InterestPoint, InterestPoint>();
 		float distance, bestDistance, secondBest;
 		InterestPoint bestMatch;
-		int descSize = 64; // TODO: use parameter
-		float delta;
-		float[] v1, v2;
 
 		for (InterestPoint p1 : ipts1) {
 			bestDistance = secondBest = Float.MAX_VALUE;
 			bestMatch = null;
 
-			ipts2Loop: for (InterestPoint p2 : ipts2) {
+			intLoop: for (InterestPoint p2 : ipts2) {
 
 				// (NB: There is no check fo sign of laplacian in OpenSURF)
 				if (p1.sign != p2.sign)
 					continue;
 
 				// Compare descriptors (based on calculating of squared distance between two vectors)
-				distance = 0;
-				v1 = p1.descriptor;
-				v2 = p2.descriptor;
-				for (int i = 0; i < descSize; i++) {
-					delta = v1[i] - v2[i];
-					distance += delta * delta;
-					if (distance >= secondBest)
-						continue ipts2Loop;
+				distance = heuristic.distance(p1.descriptor, p2.descriptor);
+				
+				if (distance > bestDistance) {
+					continue intLoop;
 				}
 				if (distance < bestDistance) {
 					secondBest = bestDistance;
@@ -102,6 +96,7 @@ public class Matcher {
 			// OpenSURF:                    0.65
 			// OpenCV-2.0.0 (find_obj.cpp): 0.6
 			// Orig. SURF:                  0.5
+			
 			if (bestDistance < 0.5f * secondBest) {
 				
 				// Matching point found.

@@ -7,27 +7,26 @@ import ij.ImagePlus;
 import ij.io.Opener;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.ambulando.code.image.search.Candidate;
 import net.ambulando.code.image.search.ImageSearcher;
+import net.ambulando.code.image.search.heuristic.EuclideanHeuristic;
+import net.ambulando.code.image.search.heuristic.Heuristic;
 import net.ambulando.code.image.search.surf.Matcher;
 import net.ambulando.code.image.search.utils.ImageHelper;
 import net.ambulando.code.image.search.utils.ImageUtils;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.base.Objects;
 
@@ -39,20 +38,26 @@ import com.google.common.base.Objects;
 @Slf4j
 public class InterestPointsSearcher implements ImageSearcher {
 
-	private static final String SURF = "SURF";
+	private static final float FIRST_LEVEL = 0.3f;
+	private static final float SECOND_LEVEL = 0.6f;
 
 	private ImageHelper imageHelper = new ImageHelper();
 	
 	private final Map<String, ImageInterestPoints> imagePoints = new TreeMap<String, ImageInterestPoints>();
 	
+	private String sources;
+
 	private Cache interestPoints;
 
 	private final InterestPointsFinder finder = new InterestPointsFinder();
 	
 	private final Opener opener = new Opener();
 	
-	private static boolean useCache = true;
+	private static boolean useCache = false;
 
+	@Setter
+	private Heuristic heuristic;
+	
 	public Collection<Candidate> search(File file) {
 		return search(file, imagePoints.values());
 	}
@@ -60,32 +65,49 @@ public class InterestPointsSearcher implements ImageSearcher {
 	public Collection<Candidate> search(File file, Collection<ImageInterestPoints> imagePointsList) {
 		Collection<Candidate> candidates = new TreeSet<Candidate>();
 		List<InterestPoint> points = resizeAndFindInterestPoints(file);
+		float firstLevel = (float) (FIRST_LEVEL * points.size());
+		float secondLevel = (float) (SECOND_LEVEL * points.size());
+		Candidate firstBest = null; 
+		Candidate secondBest = null;
 		for (ImageInterestPoints imagePoints : imagePointsList) {
-			final double distance = calculateDistance(points, imagePoints.getPoints());
-			if (distance>0.1d) {
-				candidates.add(new Candidate(imagePoints.getImage(), distance, SURF));
-				if (distance>0.60d) {
-					break;
+			final Map<InterestPoint, InterestPoint> matchedPoints = Matcher.findMatches(points, imagePoints.getPoints(), false, heuristic);
+			Candidate candidate = new Candidate(imagePoints.getImage(), matchedPoints);
+			if (candidate.score() < firstLevel) {
+				continue;
+			}
+			if (firstBest == null) {
+				firstBest = candidate; 
+				secondBest = null;
+			} else {
+				if (candidate.score() > firstBest.score()) {
+					secondBest = firstBest;
+					firstBest = candidate;
+				} else if (secondBest==null || candidate.score() > secondBest.score()){
+					secondBest = candidate;
 				}
 			}
+			if (candidate.score() < secondLevel) {
+				break;
+			}
+		}
+		if (firstBest!=null){
+			candidates.add(firstBest);
+		}
+		if (secondBest!=null){
+			candidates.add(secondBest);
 		}
 		return candidates;
 	}
 
-	private double calculateDistance(final List<InterestPoint> points, final List<InterestPoint> currentPoints) {
-		final Map<InterestPoint, InterestPoint> matchedPoints = Matcher.findMathes(points, currentPoints, false);
-		final double distance = ((double)matchedPoints.size()/(double)points.size());
-		return (double)Math.round(distance * 100) / 100;
-	}
 
-	double threshold = 0.25d;
-	public double getThreshold() {return threshold;}
-	public void setThreshold(double threshold) {this.threshold = threshold;}
-
-	String sources;
 	
 	public InterestPointsSearcher(String sources) {
+		this(sources, new EuclideanHeuristic());
+	}
+	
+	public InterestPointsSearcher(String sources, Heuristic heuristic) {
 		this.sources = new File(sources).getAbsolutePath();
+		this.heuristic = heuristic;
 		init();
 	}
 	
@@ -125,27 +147,17 @@ public class InterestPointsSearcher implements ImageSearcher {
 		imagePoints.put(file.getAbsolutePath(), imageInterestPoints);
 	}
 	
-	private List<InterestPoint> resizeAndFindInterestPoints(File file) {
-		File dest = new File(file.getParentFile(), UUID.randomUUID()+"."+FilenameUtils.getExtension(file.getName()));
+	protected List<InterestPoint> resizeAndFindInterestPoints(File file) {
+		ImagePlus image = opener.openImage(file.getAbsolutePath());
 		try {
-			ImageUtils.resizeAndSave(600, file.getAbsolutePath(), dest.getAbsolutePath());
-		} catch (IOException e) {
-			log.error("resizing", e);
-			return findInterestPoints(file);
+			image = ImageUtils.resize(600, image);
+		} catch (Exception e) {
+			log.error("error while resizing", e);
 		}
-		try {
-			return findInterestPoints(dest);
-		} finally {
-			try {
-				FileUtils.forceDelete(dest);
-			} catch (IOException e) {
-				log.error("deleting "+dest, e);
-			}
-		}
+		return findInterestPoints(image);
 	}
 
-	private List<InterestPoint> findInterestPoints(File file) {
-		ImagePlus image = opener.openImage(file.getAbsolutePath());
+	private List<InterestPoint> findInterestPoints(ImagePlus image) {
 		return finder.findInterestingPoints(image.getProcessor());
 	}
 

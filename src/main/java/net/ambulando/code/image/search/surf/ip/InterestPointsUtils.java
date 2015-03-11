@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.ambulando.code.image.search.surf.Settings;
-
 /**
  * @author massi
  *
@@ -58,18 +56,18 @@ public class InterestPointsUtils {
 		ImagePlus image4Copy = new ImagePlus(image4NewTitle, imageProcessor2Copy);
 		
 		for (Entry<InterestPoint, InterestPoint> pair : matchedPoints.entrySet()) {
-			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, Settings.getSettings(), pair.getKey());
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, Settings.getSettings(), pair.getValue());
-			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, Settings.getSettings(), pair.getValue());
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, Settings.getSettings(), pair.getKey());
+			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, pair.getKey());
+			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, pair.getValue());
+			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, pair.getValue());
+			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, pair.getKey());
 		}
 
 		for (InterestPoint interestPoint : points) {
-			InterestPointDrawer.drawSingleInterestPoint(image3ProcessorCopy, Settings.getSettings(), interestPoint);
+			InterestPointDrawer.drawSingleInterestPoint(image3ProcessorCopy, interestPoint);
 		}
 		
 		for (InterestPoint interestPoint : list) {
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor4Copy, Settings.getSettings(), interestPoint);
+			InterestPointDrawer.drawSingleInterestPoint(imageProcessor4Copy, interestPoint);
 		}
 		
 		image1Copy.show();

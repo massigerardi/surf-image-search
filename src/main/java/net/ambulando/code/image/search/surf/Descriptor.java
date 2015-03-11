@@ -11,8 +11,12 @@ import net.ambulando.code.image.search.surf.ip.InterestPoint;
 
 public class Descriptor {
 
-	final static float pi = 3.14159f;
-	final static double[][] gauss25  = {
+	private final static int DESC_SIZE = 64;
+	
+	private final static boolean UPRIGHT = false;
+	
+	private final static float pi = 3.14159f;
+	private final static double[][] GAUSS_25  = {
 		{0.02350693969273,0.01849121369071,0.01239503121241,0.00708015417522,0.00344628101733,0.00142945847484,0.00050524879060},
 		{0.02169964028389,0.01706954162243,0.01144205592615,0.00653580605408,0.00318131834134,0.00131955648461,0.00046640341759},
 		{0.01706954162243,0.01342737701584,0.00900063997939,0.00514124713667,0.00250251364222,0.00103799989504,0.00036688592278},
@@ -21,7 +25,7 @@ public class Descriptor {
 		{0.00318131834134,0.00250251364222,0.00167748505986,0.00095819467066,0.00046640341759,0.00019345616757,0.00006837798818},
 		{0.00131955648461,0.00103799989504,0.00069579213743,0.00039744277546,0.00019345616757,0.00008024231247,0.00002836202103}
 	};
-	final static double[][] gauss33 = {
+	final static double[][] GAUSS_33 = {
 		{0.014614763,0.013958917,0.012162744,0.00966788, 0.00701053, 0.004637568,0.002798657,0.001540738,0.000773799,0.000354525,0.000148179},
 		{0.013958917,0.013332502,0.011616933,0.009234028,0.006695928,0.004429455,0.002673066,0.001471597,0.000739074,0.000338616,0.000141529},
 		{0.012162744,0.011616933,0.010122116,0.008045833,0.005834325,0.003859491,0.002329107,0.001282238,0.000643973,0.000295044,0.000123318},
@@ -40,9 +44,9 @@ public class Descriptor {
 	 * Depends on the <code>orientation</code> field of the interest point.
 	 *  (I.e. in case of non-upright SURF the orientation must be computed and assigned before.) 
 	 */
-	public static void computeAndSetDescriptor(InterestPoint ipt, IntegralImage intImg, Settings p) {
+	public static void computeAndSetDescriptor(InterestPoint ipt, IntegralImage intImg) {
 		float co, si;
-		if (p.isUpright()) {
+		if (UPRIGHT) {
 			co = 1;
 			si = 0;
 		} else {
@@ -50,7 +54,7 @@ public class Descriptor {
 			si = (float) sin(ipt.orientation);
 		}
 	
-		float[] desc = new float[p.getDescSize()];
+		float[] desc = new float[DESC_SIZE];
 	
 		int sample_x, sample_y, count = 0;
 		int ix = 0, jx = 0, xs = 0, ys = 0;
@@ -123,7 +127,7 @@ public class Descriptor {
 	
 		// Convert to Unit Vector:
 		len = (float) sqrt(len);
-		for (int idx = 0; idx < p.getDescSize(); idx++)
+		for (int idx = 0; idx < DESC_SIZE; idx++)
 			desc[idx] /= len;
 	
 		// save descriptor into Interest Point object:
@@ -146,7 +150,7 @@ public class Descriptor {
 		for(int dx = -6; dx <= 6; dx++) {
 			for(int dy = -6; dy <= 6; dy++) {
 				if(dx*dx + dy*dy < 36) {
-					gauss = (float) gauss25 [id[dx+6]] [id[dy+6]];
+					gauss = (float) GAUSS_25 [id[dx+6]] [id[dy+6]];
 					resX[i] = gauss * haarX(intImg, x+dx*s, y+dy*s, waveletSize); // <-- Multiplication with scale value is here!
 					resY[i] = gauss * haarY(intImg, x+dx*s, y+dy*s, waveletSize);
 					Ang[i] = getAngle(resX[i], resY[i]);
