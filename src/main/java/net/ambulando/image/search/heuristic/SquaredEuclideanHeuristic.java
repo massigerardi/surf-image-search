@@ -1,15 +1,15 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.heuristic;
+package net.ambulando.image.search.heuristic;
 
-import net.ambulando.code.image.search.heuristic.Heuristic;
+import net.ambulando.image.search.heuristic.Heuristic;
 
 /**
  * @author mgerardi
  *
  */
-public class EuclideanHeuristic implements Heuristic {
+public class SquaredEuclideanHeuristic implements Heuristic {
 
 	@Override
 	public float distance(float[] p1, float[] p2) {
@@ -18,7 +18,7 @@ public class EuclideanHeuristic implements Heuristic {
 			float d = p2[i] - p1[i];
 			distance += d * d;
 		}
-		return distance;
+		return distance	;
 	}
 
 }

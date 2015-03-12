@@ -1,14 +1,19 @@
-package net.ambulando.code.image.search.surf;
+package net.ambulando.image.search.surf.ip;
 
 import static java.lang.Math.abs;
+import ij.process.ImageProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.ambulando.code.image.search.surf.ip.InterestPoint;
-import net.ambulando.code.image.search.surf.ip.InterestPointDrawer;
+import net.ambulando.image.search.surf.IntegralImage;
 
-public class Detector {
+/**
+ * 
+ * @author Massimiliano Gerardi
+ * Mar 12, 2015
+ */
+public class InterestPointsFinder {
 
 	private final static int LAYERS = 4;
 	private final static int OCTAVES = 4;
@@ -21,10 +26,27 @@ public class Detector {
 	private final static float THRESHOLD = 0.0000001f; 
 	
 	public static void SetInitStep(int step) {
-		Detector.INIT_STEP = step;
+		InterestPointsFinder.INIT_STEP = step;
 	}
 	
-	public static List<InterestPoint> fastHessian(IntegralImage img) {
+	public List<InterestPoint> findInterestingPoints(ImageProcessor processor) {
+		
+		IntegralImage image = new IntegralImage(processor, true);
+		
+		// Detect interest points with Fast-Hessian
+		List<InterestPoint> ipts = fastHessian(image);
+		
+		// Describe interest points with SURF-descriptor
+		for (InterestPoint ipt: ipts) {
+			InterestPointUtils.computeAndSetOrientation(ipt, image);
+			InterestPointUtils.computeAndSetDescriptor(ipt, image);
+		}
+
+		return ipts;
+
+	}
+
+	private List<InterestPoint> fastHessian(IntegralImage img) {
 		
 		/** Determinant of hessian responses */
 		float[][][] det = new float[LAYERS][img.getWidth()][img.getHeight()];

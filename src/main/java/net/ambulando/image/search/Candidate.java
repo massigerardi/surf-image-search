@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search;
+package net.ambulando.image.search;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.ambulando.code.image.search.surf.ip.InterestPoint;
+import net.ambulando.image.search.surf.ip.InterestPoint;
 
 import com.google.common.collect.ComparisonChain;
 

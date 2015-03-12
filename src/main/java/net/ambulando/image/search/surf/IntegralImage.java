@@ -1,4 +1,4 @@
-package net.ambulando.code.image.search.surf;
+package net.ambulando.image.search.surf;
 
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -124,7 +124,7 @@ public class IntegralImage {
 	 * the rectangle specified by the top-left start coordinate (inclusive) and
 	 * size.<br>
 	 */
-	float area(int x1, int y1, int rectWidth, int rectHeight) {
+	public float area(int x1, int y1, int rectWidth, int rectHeight) {
 		x1--; y1--;                  //  A +--------+ B
 		int x2 = x1 + rectWidth;     //    |        |        A(x1,y1)
 		int y2 = y1 + rectHeight;    //  C +--------+ D
@@ -146,7 +146,7 @@ public class IntegralImage {
 
 	/** A speed optimized version of {@link #area(FloatProcessor, int, int, int, int)} 
 	 * without bounds check (for 0 < x1 < width and 0 < y1 < height). */
-	float area2(int x1, int y1, int rectWidth, int rectHeight) {
+	public float area2(int x1, int y1, int rectWidth, int rectHeight) {
 		x1--; y1--;                  //  A +--------+ B
 		int x2 = x1 + rectWidth;     //    |        |        A(x1,y1)
 		int y2 = y1 + rectHeight;    //  C +--------+ D

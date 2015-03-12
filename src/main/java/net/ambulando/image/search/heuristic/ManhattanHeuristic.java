@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.heuristic;
+package net.ambulando.image.search.heuristic;
 
 /**
  * @author mgerardi
@@ -10,7 +10,7 @@ package net.ambulando.code.image.search.heuristic;
 public class ManhattanHeuristic implements Heuristic {
 
 	/* (non-Javadoc)
-	 * @see net.ambulando.code.image.search.heuristic.Heuristic#distance(float[], float[])
+	 * @see net.ambulando.image.search.heuristic.Heuristic#distance(float[], float[])
 	 */
 	@Override
 	public float distance(float[] p1, float[] p2) {

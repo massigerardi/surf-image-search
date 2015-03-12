@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.heuristic;
+package net.ambulando.image.search.heuristic;
 
 /**
  * @author mgerardi

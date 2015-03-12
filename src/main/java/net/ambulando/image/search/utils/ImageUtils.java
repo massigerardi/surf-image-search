@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.utils;
+package net.ambulando.image.search.utils;
 
 import ij.ImagePlus;
 import ij.io.Opener;

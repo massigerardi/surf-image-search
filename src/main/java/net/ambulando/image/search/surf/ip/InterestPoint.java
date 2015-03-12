@@ -1,4 +1,4 @@
-package net.ambulando.code.image.search.surf.ip;
+package net.ambulando.image.search.surf.ip;
 
 import java.util.Formatter;
 import java.util.Locale;

@@ -1,42 +1,35 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.surf.ip;
+package net.ambulando.image.search.surf;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
+import net.ambulando.image.search.surf.ip.InterestPoint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ComparisonChain;
 
 /**
- * @author massi
- *
+ * An imag Descriptor to keep track of image and its ip.
+ * @author Massimiliano Gerardi
+ * Mar 12, 2015
  */
 @Getter
 @AllArgsConstructor
-public class ImageInterestPoints implements Serializable, Comparable<ImageInterestPoints> {
+public class ImageDescriptor implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 835075804493712156L;
 
-	File image;
+	private File image;
 	
-	List<InterestPoint> points;
-
-	@Override
-	public int compareTo(ImageInterestPoints that) {
-		// TODO Auto-generated method stub
-		return ComparisonChain.start()
-				.compare(this.getImage().getAbsolutePath(), that.getImage().getAbsolutePath())
-				.result();
-	}
+	private List<InterestPoint> points;
 
 	@Override
 	public String toString() {

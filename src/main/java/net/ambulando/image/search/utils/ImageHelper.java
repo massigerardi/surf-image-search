@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search.utils;
+package net.ambulando.image.search.utils;
 
 import java.io.File;
 import java.util.ArrayList;

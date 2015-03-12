@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ambulando.code.image.search;
+package net.ambulando.image.search;
 
 import java.io.File;
 import java.util.Collection;
@@ -14,5 +14,4 @@ public interface ImageSearcher {
 
 	Collection<Candidate> search(File image);
 	
-	void reload();
 }

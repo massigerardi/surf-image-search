@@ -1,4 +1,4 @@
-package net.ambulando.code.image.search.surf;
+package net.ambulando.image.search.surf.ip;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.atan;
@@ -7,9 +7,9 @@ import static java.lang.Math.exp;
 import static java.lang.Math.round;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-import net.ambulando.code.image.search.surf.ip.InterestPoint;
+import net.ambulando.image.search.surf.IntegralImage;
 
-public class Descriptor {
+public class InterestPointUtils {
 
 	private final static int DESC_SIZE = 64;
 	
