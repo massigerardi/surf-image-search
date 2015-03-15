@@ -74,7 +74,7 @@ public class SurfImageSearcher implements ImageSearcher {
         for (ImageDescriptor candidateDescriptor : imageDescriptors) {
             final Map<InterestPoint, InterestPoint> matchedPoints = InterestPointMatcher
                     .findMatches(search.getPoints(),
-                            candidateDescriptor.getPoints(), false, heuristic);
+                            candidateDescriptor.getPoints(), heuristic);
             Candidate candidate = new Candidate(candidateDescriptor.getImage(),
                     matchedPoints);
             if (candidate.score() < firstLevel) {
