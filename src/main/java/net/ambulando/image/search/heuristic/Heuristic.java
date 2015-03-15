@@ -9,5 +9,5 @@ package net.ambulando.image.search.heuristic;
  */
 public interface Heuristic {
 
-	float distance(float[] p1, float[] p2);
+    float distance(float[] p1, float[] p2);
 }

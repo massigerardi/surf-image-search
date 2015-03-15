@@ -14,8 +14,6 @@ import net.ambulando.image.search.heuristic.ChebyshevHeuristic;
 import net.ambulando.image.search.heuristic.EuclideanHeuristic;
 import net.ambulando.image.search.heuristic.ManhattanHeuristic;
 import net.ambulando.image.search.heuristic.SquaredEuclideanHeuristic;
-import net.ambulando.image.search.surf.ip.InterestPointsFinder;
-import net.ambulando.image.search.surf.ip.InterestPointsUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
@@ -23,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 
 /**
  * @author mgerardi
@@ -32,15 +29,23 @@ import com.google.common.collect.Lists;
 @Slf4j
 public class SurfImageSearcherTest {
 
+    private enum TestImage {
+        
+        IMAGE_A("elena-1.jpg", "elena-1.jpeg,elena-1b.jpeg"),
+        IMAGE_B("DG4X0095.jpg", "DG4X0095.jpg,DG4X0095B.jpg"),
+        IMAGE_C("elena-3.jpeg", "elena-3.jpeg"),
+        IMAGE_D("1970Courtroom.jpg", null);
+        
+        String src;
+        String expectedResults;
+        private TestImage(String src, String expectedResults) {
+            this.src = src;
+            this.expectedResults = expectedResults;
+        }
+    }
+
     private final static String SOURCES = "src/test/resources/images";
     private final static String SEARCH = "src/test/resources/search-images";
-    private final static String IMAGE_A = "DG4X0095.jpg";
-    private final static String IMAGE_B = "elena-1.jpg";
-    private final static String IMAGE_C = "1970Courtroom.jpg";
-    private final static String EXPECTED_A = "DG4X0095.jpg,DG4X0095B.jpg";
-    private final static String EXPECTED_B = "elena-1.jpeg,elena-1b.jpeg";
-    private final static String IMAGE_D = "elena-3.jpeg";
-    private final static String EXPECTED_D = "elena-3.jpeg";
 
     private static SurfImageSearcher searcher;
 
@@ -49,62 +54,128 @@ public class SurfImageSearcherTest {
         if (searcher == null) {
             Stopwatch stopwatch = new Stopwatch().start();
             searcher = new SurfImageSearcher(SOURCES);
-            log.debug("Time to init searcher: "
-                    + stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) + " ms");
+            log.debug("Time to init searcher: {} ms", stopwatch.stop().elapsed(TimeUnit.MILLISECONDS));
         }
-
     }
 
     @Test
-    public void testSearch() {
+    public void testSearchEuclideanHeuristicA() {
         log.debug("EuclideanHeuristic");
         searcher.setHeuristic(new EuclideanHeuristic());
-        search();
+        search(TestImage.IMAGE_A);
     }
 
     @Test
-    public void testSearchA() {
-        log.debug("SquaredEuclideanHeuristic with initial step = 1");
+    public void testSearchEuclideanHeuristicB() {
+        log.debug("EuclideanHeuristic");
+        searcher.setHeuristic(new EuclideanHeuristic());
+        search(TestImage.IMAGE_B);
+    }
+
+    @Test
+    public void testSearchEuclideanHeuristicC() {
+        log.debug("EuclideanHeuristic");
+        searcher.setHeuristic(new EuclideanHeuristic());
+        search(TestImage.IMAGE_C);
+    }
+
+    @Test
+    public void testSearchEuclideanHeuristicD() {
+        log.debug("EuclideanHeuristic");
+        searcher.setHeuristic(new EuclideanHeuristic());
+        search(TestImage.IMAGE_D);
+    }
+
+    @Test
+    public void testSearchSquaredEuclideanHeuristicA() {
+        log.debug("SquaredEuclideanHeuristic");
         searcher.setHeuristic(new SquaredEuclideanHeuristic());
-        search();
+        search(TestImage.IMAGE_A);
     }
 
     @Test
-    public void testSearchA2() {
-        log.debug("SquaredEuclideanHeuristic with initial step = 2");
-        InterestPointsFinder.SetInitStep(2);
-        SurfImageSearcher searcher = new SurfImageSearcher(SOURCES);
+    public void testSearchSquaredEuclideanHeuristicB() {
+        log.debug("SquaredEuclideanHeuristic");
         searcher.setHeuristic(new SquaredEuclideanHeuristic());
-        search();
+        search(TestImage.IMAGE_B);
     }
 
     @Test
-    public void testSearchB() {
+    public void testSearchSquaredEuclideanHeuristicC() {
+        log.debug("SquaredEuclideanHeuristic");
+        searcher.setHeuristic(new SquaredEuclideanHeuristic());
+        search(TestImage.IMAGE_C);
+    }
+
+    @Test
+    public void testSearchSquaredEuclideanHeuristicD() {
+        log.debug("SquaredEuclideanHeuristic");
+        searcher.setHeuristic(new SquaredEuclideanHeuristic());
+        search(TestImage.IMAGE_D);
+    }
+
+    @Test
+    public void testSearchManhattanHeuristicA() {
         log.debug("ManhattanHeuristic");
         searcher.setHeuristic(new ManhattanHeuristic());
-        search();
+        search(TestImage.IMAGE_A);
     }
 
     @Test
-    public void testSearchC() {
+    public void testSearchManhattanHeuristicB() {
+        log.debug("ManhattanHeuristic");
+        searcher.setHeuristic(new ManhattanHeuristic());
+        search(TestImage.IMAGE_B);
+    }
+
+    @Test
+    public void testSearchManhattanHeuristicC() {
+        log.debug("ManhattanHeuristic");
+        searcher.setHeuristic(new ManhattanHeuristic());
+        search(TestImage.IMAGE_C);
+    }
+
+    @Test
+    public void testSearchManhattanHeuristicD() {
+        log.debug("ManhattanHeuristic");
+        searcher.setHeuristic(new ManhattanHeuristic());
+        search(TestImage.IMAGE_D);
+    }
+
+    @Test
+    public void testSearchChebyshevHeuristicA() {
         log.debug("ChebyshevHeuristic");
         searcher.setHeuristic(new ChebyshevHeuristic());
-        search();
+        search(TestImage.IMAGE_A);
     }
 
-    private void search() {
-        search(new File(SEARCH, IMAGE_B), EXPECTED_B);
-        search(new File(SEARCH, IMAGE_A), EXPECTED_A);
-        search(new File(SEARCH, IMAGE_D), EXPECTED_D);
-        search(new File(SEARCH, IMAGE_C), null);
-
+    @Test
+    public void testSearchChebyshevHeuristicB() {
+        log.debug("ChebyshevHeuristic");
+        searcher.setHeuristic(new ChebyshevHeuristic());
+        search(TestImage.IMAGE_B);
     }
 
-    private void search(File src, String expected) {
+    @Test
+    public void testSearchChebyshevHeuristicC() {
+        log.debug("ChebyshevHeuristic");
+        searcher.setHeuristic(new ChebyshevHeuristic());
+        search(TestImage.IMAGE_C);
+    }
+
+    @Test
+    public void testSearchChebyshevHeuristicD() {
+        log.debug("ChebyshevHeuristic");
+        searcher.setHeuristic(new ChebyshevHeuristic());
+        search(TestImage.IMAGE_D);
+    }
+
+    private void search(TestImage testImage) {
+        File src = new File(SEARCH, testImage.src);
+        String expected = testImage.expectedResults;
         Stopwatch stopwatch = new Stopwatch().start();
         Collection<Candidate> candidates = searcher.search(src);
-        log.debug("Time for search: "
-                + stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) + " ms");
+        log.debug("Time for search: {} ms", stopwatch.stop().elapsed(TimeUnit.MILLISECONDS));
         log.debug("candidates " + candidates);
         Assert.assertNotNull(candidates);
         boolean hasMatches = expected != null;
@@ -126,30 +197,14 @@ public class SurfImageSearcherTest {
     }
 
     @Test
-    public void testResizeAndFindInterestPointsWithStepOne() throws Exception {
+    public void testResizeAndFindInterestPoints() throws Exception {
         File file = new File(SOURCES, "elena-1.jpeg");
         Stopwatch stopwatch = new Stopwatch().start();
         ImageDescriptor descriptor = searcher.resizeAndFindInterestPoints(file);
-        log.debug("[testResizeAndFindInterestPointsWithStepOne]Time to find interesting points: "
-                + stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) + " ms");
+        log.debug("Time for search: {} ms", stopwatch.stop().elapsed(TimeUnit.MILLISECONDS));
         Assert.assertNotNull(descriptor);
         Assert.assertFalse(descriptor.getPoints().isEmpty());
-        log.debug("[testResizeAndFindInterestPointsWithStepOne]found "
-                + descriptor.getPoints().size() + " points");
-    }
-
-    @Test
-    public void testResizeAndFindInterestPointsWithStepTwo() throws Exception {
-        InterestPointsFinder.SetInitStep(2);
-        File file = new File(SOURCES, "elena-1.jpeg");
-        Stopwatch stopwatch = new Stopwatch().start();
-        ImageDescriptor descriptor = searcher.resizeAndFindInterestPoints(file);
-        log.debug("[testResizeAndFindInterestPointsWithStepTwo]Time to find interesting points: "
-                + stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) + " ms");
-        Assert.assertNotNull(descriptor);
-        Assert.assertFalse(descriptor.getPoints().isEmpty());
-        log.debug("[testResizeAndFindInterestPointsWithStepOne]found "
-                + descriptor.getPoints().size() + " points");
+        log.debug("[testResizeAndFindInterestPointsWithStepOne] found {} points", descriptor.getPoints().size());
     }
 
 }
