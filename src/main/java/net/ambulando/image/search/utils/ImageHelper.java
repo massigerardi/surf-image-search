@@ -15,10 +15,10 @@ import org.apache.commons.io.FileUtils;
  */
 public class ImageHelper {
 
-	private String[] exts = new String[] {"jpg", "jpeg", "ppm", "PPM"};
+    private String[] exts = new String[] { "jpg", "jpeg", "ppm", "PPM" };
 
-	public List<File> getImages(File dir) {
-		return new ArrayList<File>(FileUtils.listFiles(dir, exts , true));
-	}
-	
+    public List<File> getImages(File dir) {
+        return new ArrayList<File>(FileUtils.listFiles(dir, exts, true));
+    }
+
 }

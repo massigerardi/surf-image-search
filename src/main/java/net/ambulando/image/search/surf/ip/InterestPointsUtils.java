@@ -14,6 +14,11 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
+
+import net.ambulando.image.search.Candidate;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author massi
@@ -21,80 +26,73 @@ import java.util.Map.Entry;
  */
 public class InterestPointsUtils {
 
-	private static Opener opener = new Opener();
-	
-	private InterestPointsUtils() {
-	}
-	
-	public static void displayInterestingPoints(Map<InterestPoint, InterestPoint> matchedPoints, File image, List<InterestPoint> points, File candidate, List<InterestPoint> list) {
-		// Draw matched interest points:
-		ImagePlus image1 = opener.openImage(image.getAbsolutePath());
-		ImagePlus image2 = opener.openImage(candidate.getAbsolutePath());
-		
-		// 1) prepare a copy of image1
-		ImageProcessor image1ProcessorCopy = image1.getProcessor().duplicate().convertToRGB();
-		String image1NewTitle = String.format("%s: %d of %d Interest Points", 
-				image1.getTitle().split(":")[0], matchedPoints.size(), points.size());
-		ImagePlus image1Copy = new ImagePlus(image1NewTitle, image1ProcessorCopy);
-		
-		// 1) prepare a copy of image1
-		ImageProcessor image3ProcessorCopy = image1.getProcessor().duplicate().convertToRGB();
-		String image3NewTitle = String.format("%s: %d of %d Interest Points", 
-				image1.getTitle().split(":")[0], points.size(), points.size());
-		ImagePlus image3Copy = new ImagePlus(image3NewTitle, image1ProcessorCopy);
-		
-		// 2) prepare a copy of image2
-		ImageProcessor imageProcessor2Copy = image2.getProcessor().duplicate().convertToRGB();
-		String image2NewTitle = String.format("%s: %d of %d Interest Points", 
-				image2.getTitle().split(":")[0], matchedPoints.size(), list.size());
-		ImagePlus image2Copy = new ImagePlus(image2NewTitle, imageProcessor2Copy);
-		
-		// 2) prepare a copy of image2
-		ImageProcessor imageProcessor4Copy = image2.getProcessor().duplicate().convertToRGB();
-		String image4NewTitle = String.format("%s: %d of %d Interest Points", 
-				image2.getTitle().split(":")[0], list.size(), list.size());
-		ImagePlus image4Copy = new ImagePlus(image4NewTitle, imageProcessor2Copy);
-		
-		for (Entry<InterestPoint, InterestPoint> pair : matchedPoints.entrySet()) {
-			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, pair.getKey());
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, pair.getValue());
-			InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, pair.getValue());
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor2Copy, pair.getKey());
-		}
+    private static Opener opener = new Opener();
 
-		for (InterestPoint interestPoint : points) {
-			InterestPointDrawer.drawSingleInterestPoint(image3ProcessorCopy, interestPoint);
-		}
-		
-		for (InterestPoint interestPoint : list) {
-			InterestPointDrawer.drawSingleInterestPoint(imageProcessor4Copy, interestPoint);
-		}
-		
-		image1Copy.show();
-		image2Copy.show();
-		image3Copy.show();
-		image4Copy.show();
-		read("any key to continue");
-		image1Copy.hide();
-		image2Copy.hide();
-		image3Copy.hide();
-		image4Copy.hide();
-	}
+    private InterestPointsUtils() {
+    }
 
-	private static String read(String string) {
-		System.out.println(string);
-		String command = null;
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		while (command==null) {
-			try {
-				command = br.readLine();
-			} catch (IOException ioe) {
-				System.out.println("IO error trying to read your name!");
-				System.exit(1);
-			}
-		}
-		return command;
-	}
+    public static void displayCandidates(File image, List<Candidate> candidates) {
+        ImagePlus image1 = opener.openImage(image.getAbsolutePath());
+        ImageProcessor image1ProcessorCopy = image1.getProcessor().duplicate().convertToRGB();
+        String image1NewTitle = String.format("Original %s", image1.getTitle().split(":")[0]);
+        ImagePlus image1Copy = new ImagePlus(image1NewTitle, image1ProcessorCopy);
+        int x = 100;
+        int y = 100;
+        image1Copy.show();
+        image1Copy.getCanvas().setLocation(x, y);
+        List<ImagePlus> images = Lists.newArrayList();
+        for (Candidate candidate : candidates) {
+            x += 25;
+            y += 25;
+            ImagePlus current = InterestPointsUtils.displayInterestingPoints(candidate, image1ProcessorCopy);
+            images.add(current);
+            current.show();
+            current.getCanvas().setLocation(x, y);
+        }
+        image1Copy.repaintWindow();
+        read("any key to continue");
+        image1Copy.hide();
+        images.forEach(new Consumer<ImagePlus>() {
+            @Override
+            public void accept(ImagePlus t) {
+                t.hide();
+            }
+        });
+    }
 
-	
+    public static ImagePlus displayInterestingPoints(Candidate candidate, ImageProcessor image1ProcessorCopy) {
+        System.out.println("drawing...");
+        // Draw matched interest points:
+        ImagePlus image2 = opener.openImage(candidate.getImage().getAbsolutePath());
+        Map<InterestPoint, InterestPoint> matchedPoints = candidate.getMatchedPoint();
+
+        ImageProcessor image2ProcessorCopy = image2.getProcessor().duplicate()
+                .convertToRGB();
+        String image2NewTitle = String.format("Result %s: %d Matched Points",
+                image2.getTitle().split(":")[0], matchedPoints.size());
+        ImagePlus image2Copy = new ImagePlus(image2NewTitle,
+                image2ProcessorCopy);
+
+        for (Entry<InterestPoint, InterestPoint> pair : matchedPoints.entrySet()) {
+            InterestPointDrawer.drawSingleInterestPoint(image1ProcessorCopy, pair.getKey());
+            InterestPointDrawer.drawSingleInterestPoint(image2ProcessorCopy, pair.getValue());
+        }
+        return image2Copy;
+    }
+
+    private static String read(String string) {
+        System.out.println(string);
+        String command = null;
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        while (command == null) {
+            try {
+                command = br.readLine();
+            } catch (IOException ioe) {
+                System.out.println("IO error trying to read from keyboard!");
+                System.exit(1);
+            }
+        }
+        return command;
+    }
+
 }

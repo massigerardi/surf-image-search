@@ -3,9 +3,6 @@
  */
 package net.ambulando.image.search.surf;
 
-import ij.io.Opener;
-import ij.process.ImageProcessor;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,9 +14,8 @@ import net.ambulando.image.search.heuristic.ChebyshevHeuristic;
 import net.ambulando.image.search.heuristic.EuclideanHeuristic;
 import net.ambulando.image.search.heuristic.ManhattanHeuristic;
 import net.ambulando.image.search.heuristic.SquaredEuclideanHeuristic;
-import net.ambulando.image.search.surf.ip.InterestPointDrawer;
 import net.ambulando.image.search.surf.ip.InterestPointsFinder;
-import net.ambulando.image.search.utils.ImageDisplay;
+import net.ambulando.image.search.surf.ip.InterestPointsUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
@@ -27,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 
 /**
  * @author mgerardi
@@ -139,7 +136,6 @@ public class SurfImageSearcherTest {
         Assert.assertFalse(descriptor.getPoints().isEmpty());
         log.debug("[testResizeAndFindInterestPointsWithStepOne]found "
                 + descriptor.getPoints().size() + " points");
-        display(descriptor);
     }
 
     @Test
@@ -156,16 +152,4 @@ public class SurfImageSearcherTest {
                 + descriptor.getPoints().size() + " points");
     }
 
-    private void display(ImageDescriptor descriptor) throws Exception {
-        ImageProcessor processor = new Opener().openImage(
-                descriptor.getImage().getAbsolutePath()).getProcessor();
-        InterestPointDrawer.drawInterestPoints(processor,
-                descriptor.getPoints());
-        ImageDisplay display = new ImageDisplay(processor.getBufferedImage());
-        display.display();
-        while (display.isShowing()) {
-            Thread.sleep(1000);
-        }
-
-    }
 }
