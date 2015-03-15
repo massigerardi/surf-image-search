@@ -39,138 +39,144 @@ import com.google.common.base.Objects;
 @Slf4j
 public class SurfImageSearcher implements ImageSearcher {
 
-	private static final float FIRST_LEVEL = 0.3f;
-	private static final float SECOND_LEVEL = 0.6f;
+    private static final float FIRST_LEVEL = 0.3f;
+    private static final float SECOND_LEVEL = 0.6f;
 
-	private ImageHelper imageHelper = new ImageHelper();
-	
-	private final Map<String, ImageDescriptor> imageDescriptors = new TreeMap<String, ImageDescriptor>();
-	
-	private String sources;
+    private ImageHelper imageHelper = new ImageHelper();
 
-	private Cache interestPoints;
+    private final Map<String, ImageDescriptor> imageDescriptors = new TreeMap<String, ImageDescriptor>();
 
-	private final InterestPointsFinder finder = new InterestPointsFinder();
-	
-	private final Opener opener = new Opener();
-	
-	private static boolean useCache = false;
+    private String sources;
 
-	@Setter
-	private Heuristic heuristic;
-	
-	public Collection<Candidate> search(File file) {
-		return search(file, imageDescriptors.values());
-	}
-	
-	public Collection<Candidate> search(File file, Collection<ImageDescriptor> imageDescriptors) {
-		Collection<Candidate> candidates = new TreeSet<Candidate>();
-		ImageDescriptor search = resizeAndFindInterestPoints(file);
-		float firstLevel = (float) (FIRST_LEVEL * search.getPoints().size());
-		float secondLevel = (float) (SECOND_LEVEL * search.getPoints().size());
-		Candidate firstBest = null; 
-		Candidate secondBest = null;
-		for (ImageDescriptor candidateDescriptor : imageDescriptors) {
-			final Map<InterestPoint, InterestPoint> matchedPoints = InterestPointMatcher.findMatches(search.getPoints(), candidateDescriptor.getPoints(), false, heuristic);
-			Candidate candidate = new Candidate(candidateDescriptor.getImage(), matchedPoints);
-			if (candidate.score() < firstLevel) {
-				continue;
-			}
-			if (firstBest == null) {
-				firstBest = candidate; 
-				secondBest = null;
-			} else {
-				if (candidate.score() > firstBest.score()) {
-					secondBest = firstBest;
-					firstBest = candidate;
-				} else if (secondBest==null || candidate.score() > secondBest.score()){
-					secondBest = candidate;
-				}
-			}
-			if (candidate.score() < secondLevel) {
-				break;
-			}
-		}
-		if (firstBest!=null){
-			candidates.add(firstBest);
-		}
-		if (secondBest!=null){
-			candidates.add(secondBest);
-		}
-		return candidates;
-	}
+    private Cache interestPoints;
 
+    private final InterestPointsFinder finder = new InterestPointsFinder();
 
-	
-	public SurfImageSearcher(String sources) {
-		this(sources, new EuclideanHeuristic());
-	}
-	
-	public SurfImageSearcher(String sources, Heuristic heuristic) {
-		this.sources = new File(sources).getAbsolutePath();
-		this.heuristic = heuristic;
-		init();
-	}
-	
-	protected void init() {
-		List<File> files = imageHelper.getImages(new File(sources));
-		if (useCache) {
-			System.setProperty("net.sf.ehcache.enableShutdownHook","true");
-			interestPoints = CacheManager.getInstance().getCache("interestPoints");
-			try {
-				for (File file : files) {
-					loadImageInterestPointsFromCache(file);
-				}
-			} finally {
-				CacheManager.getInstance().shutdown();			
-			}
-		} else {
-			for (File file : files) {
-				ImageDescriptor imageDescriptor = resizeAndFindInterestPoints(file);
-				imageDescriptors.put(file.getAbsolutePath(), new ImageDescriptor(file, imageDescriptor.getPoints()));
-			}
-		}
-	}
-	
-	private void loadImageInterestPointsFromCache(File file) {
-		ImageDescriptor imageDescriptor = null;
-		Element element = interestPoints.get(file.getAbsolutePath());
-		if(element != null) {
-			log.debug("file {} was found in cache", file.getAbsolutePath());
-			imageDescriptor = (ImageDescriptor)element.getObjectValue();
-		} else {
-			log.debug("file {} was NOT found in cache", file.getAbsolutePath());
-			imageDescriptor = resizeAndFindInterestPoints(file);
-			interestPoints.put(new Element(file.getAbsolutePath(), imageDescriptor));
-			interestPoints.flush();
-		}
-		imageDescriptors.put(file.getAbsolutePath(), imageDescriptor);
-	}
-	
-	public ImageDescriptor resizeAndFindInterestPoints(File file) {
-		ImagePlus image = opener.openImage(file.getAbsolutePath());
-		try {
-			image = ImageUtils.resize(600, image);
-		} catch (Exception e) {
-			log.error("error while resizing", e);
-		}
-		List<InterestPoint> interestPoints = findInterestPoints(image);
-		return new ImageDescriptor(file, interestPoints);
-	}
+    private final Opener opener = new Opener();
 
-	private List<InterestPoint> findInterestPoints(ImagePlus image) {
-		return finder.findInterestingPoints(image.getProcessor());
-	}
+    private static boolean useCache = false;
 
-	public static void setUseCache(boolean b) {
-		useCache = b;
-	}
+    @Setter
+    private Heuristic heuristic;
 
-	@Override
-	public String toString() {
-		return 	Objects.toStringHelper(this.getClass())
-				.add("sources", sources)
-				.add("images", imageDescriptors.size()).toString();
-	}
+    public Collection<Candidate> search(File file) {
+        return search(file, imageDescriptors.values());
+    }
+
+    public Collection<Candidate> search(File file,
+            Collection<ImageDescriptor> imageDescriptors) {
+        Collection<Candidate> candidates = new TreeSet<Candidate>();
+        ImageDescriptor search = resizeAndFindInterestPoints(file);
+        float firstLevel = (float) (FIRST_LEVEL * search.getPoints().size());
+        float secondLevel = (float) (SECOND_LEVEL * search.getPoints().size());
+        Candidate firstBest = null;
+        Candidate secondBest = null;
+        for (ImageDescriptor candidateDescriptor : imageDescriptors) {
+            final Map<InterestPoint, InterestPoint> matchedPoints = InterestPointMatcher
+                    .findMatches(search.getPoints(),
+                            candidateDescriptor.getPoints(), false, heuristic);
+            Candidate candidate = new Candidate(candidateDescriptor.getImage(),
+                    matchedPoints);
+            if (candidate.score() < firstLevel) {
+                continue;
+            }
+            if (firstBest == null) {
+                firstBest = candidate;
+                secondBest = null;
+            } else {
+                if (candidate.score() > firstBest.score()) {
+                    secondBest = firstBest;
+                    firstBest = candidate;
+                } else if (secondBest == null
+                        || candidate.score() > secondBest.score()) {
+                    secondBest = candidate;
+                }
+            }
+            if (candidate.score() < secondLevel) {
+                break;
+            }
+        }
+        if (firstBest != null) {
+            candidates.add(firstBest);
+        }
+        if (secondBest != null) {
+            candidates.add(secondBest);
+        }
+        return candidates;
+    }
+
+    public SurfImageSearcher(String sources) {
+        this(sources, new EuclideanHeuristic());
+    }
+
+    public SurfImageSearcher(String sources, Heuristic heuristic) {
+        this.sources = new File(sources).getAbsolutePath();
+        this.heuristic = heuristic;
+        init();
+    }
+
+    protected void init() {
+        List<File> files = imageHelper.getImages(new File(sources));
+        if (useCache) {
+            System.setProperty("net.sf.ehcache.enableShutdownHook", "true");
+            interestPoints = CacheManager.getInstance().getCache(
+                    "interestPoints");
+            try {
+                for (File file : files) {
+                    loadImageInterestPointsFromCache(file);
+                }
+            } finally {
+                CacheManager.getInstance().shutdown();
+            }
+        } else {
+            for (File file : files) {
+                ImageDescriptor imageDescriptor = resizeAndFindInterestPoints(file);
+                imageDescriptors.put(file.getAbsolutePath(),
+                        new ImageDescriptor(file, imageDescriptor.getPoints()));
+            }
+        }
+    }
+
+    private void loadImageInterestPointsFromCache(File file) {
+        ImageDescriptor imageDescriptor = null;
+        Element element = interestPoints.get(file.getAbsolutePath());
+        if (element != null) {
+            log.debug("file {} was found in cache", file.getAbsolutePath());
+            imageDescriptor = (ImageDescriptor) element.getObjectValue();
+        } else {
+            log.debug("file {} was NOT found in cache", file.getAbsolutePath());
+            imageDescriptor = resizeAndFindInterestPoints(file);
+            interestPoints.put(new Element(file.getAbsolutePath(),
+                    imageDescriptor));
+            interestPoints.flush();
+        }
+        imageDescriptors.put(file.getAbsolutePath(), imageDescriptor);
+    }
+
+    public ImageDescriptor resizeAndFindInterestPoints(File file) {
+        ImagePlus image = opener.openImage(file.getAbsolutePath());
+        try {
+            image = ImageUtils.resize(600, image);
+        } catch (Exception e) {
+            log.error("error while resizing", e);
+        }
+        List<InterestPoint> interestPoints = findInterestPoints(image);
+        return new ImageDescriptor(file, interestPoints);
+    }
+
+    private List<InterestPoint> findInterestPoints(ImagePlus image) {
+        return finder.findInterestingPoints(image.getProcessor(), false);
+    }
+
+    public static void setUseCache(boolean b) {
+        useCache = b;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this.getClass())
+                .add("sources", sources)
+                .add("images", imageDescriptors.size()).toString();
+    }
 
 }
